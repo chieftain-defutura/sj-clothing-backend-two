@@ -15,7 +15,7 @@ app.use(bodyParser.json({ limit: "10mb" }));
 app.use(bodyParser.urlencoded({ limit: "10mb", extended: true }));
 
 app.get("/", (req, res) => {
-  res.send("<h2>Hello world </h2>");
+  res.send("<h2>Hello everyone </h2>");
 });
 
 app.use(express.json({}));
