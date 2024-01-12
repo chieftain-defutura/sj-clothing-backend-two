@@ -54,15 +54,15 @@ app.post("/canvas", async (req, res) => {
   const image = req.body.image;
   const color = req.body.color;
   try {
-    const targetImage = new Jimp(300, 200, color);
+    const targetImage = new Jimp(1600, 1600, color);
     const buffer = Buffer.from(image.split(",")[1], "base64");
     const sourceImage = await Jimp.read(buffer);
-
+    sourceImage.rotate(180);
     // Define the rectangle in the target image where the source image will be copied
-    const startX = 50;
-    const startY = 50;
-    const endX = 250;
-    const endY = 150;
+    const startX = 90;
+    const startY = 90;
+    const endX = 300;
+    const endY = 250;
 
     // Copy pixels from the source image to the target image
     for (let x = startX; x < endX; x++) {
@@ -72,11 +72,11 @@ app.post("/canvas", async (req, res) => {
       }
     }
 
+    const base64Image = await sourceImage.getBase64Async(Jimp.MIME_PNG);
     // Save the image to a file
     await targetImage.writeAsync("output.png");
 
-    console.log("Image created successfully");
-    res.send("success");
+    res.json({ base64Image });
   } catch (error) {
     console.error("Error creating image:", error);
     res.send(error);
