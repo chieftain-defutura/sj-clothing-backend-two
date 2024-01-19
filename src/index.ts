@@ -1,7 +1,7 @@
 import cors from "cors";
 import express from "express";
 import dotenv from "dotenv";
-
+import puppeteer from "puppeteer";
 import Jimp from "jimp";
 import bodyParser from "body-parser";
 dotenv.config();
@@ -60,9 +60,9 @@ app.post("/canvas", async (req, res) => {
     sourceImage.rotate(180);
 
     // Define the rectangle in the target image where the source image will be copied
-    const startX = 200;
+    const startX = 250;
     const startY = 200;
-    const endX = 700;
+    const endX = 650;
     const endY = 700;
 
     sourceImage.contain(
@@ -82,6 +82,26 @@ app.post("/canvas", async (req, res) => {
   } catch (error) {
     console.error("Error creating image:", error);
     res.send(error);
+  }
+});
+
+app.post("/captureWebsite", async (req, res) => {
+  const uid = "e0df0955-15fd-4e1a-9b48-05fbe529c6bf";
+  try {
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.goto(
+      `https://sj-threejs-development.netlify.app/webview/?uid=${uid}`
+    );
+    await page.setViewport({ width: 1920, height: 1080, deviceScaleFactor: 1 });
+
+    await new Promise((resolve) => setTimeout(resolve, 10000));
+    await page.screenshot({ path: "./screenshot.png" });
+    const screenshotBase64 = await page.screenshot({ encoding: "base64" });
+    await browser.close();
+    res.send({ screenshotBase64 });
+  } catch (error) {
+    console.log(error);
   }
 });
 app.listen(PORT, () => {
