@@ -58,21 +58,23 @@ app.post("/canvas", async (req, res) => {
     const buffer = Buffer.from(image.split(",")[1], "base64");
     const sourceImage = await Jimp.read(buffer);
     sourceImage.rotate(180);
+
     // Define the rectangle in the target image where the source image will be copied
-    const startX = 90;
-    const startY = 90;
-    const endX = 300;
-    const endY = 250;
+    const startX = 200;
+    const startY = 200;
+    const endX = 700;
+    const endY = 700;
 
-    // Copy pixels from the source image to the target image
-    for (let x = startX; x < endX; x++) {
-      for (let y = startY; y < endY; y++) {
-        const color = sourceImage.getPixelColor(x - startX, y - startY);
-        targetImage.setPixelColor(color, x, y);
-      }
-    }
+    sourceImage.contain(
+      endX - startX,
+      endY - startY,
+      Jimp.HORIZONTAL_ALIGN_CENTER | Jimp.VERTICAL_ALIGN_MIDDLE
+    );
 
-    const base64Image = await sourceImage.getBase64Async(Jimp.MIME_PNG);
+    // Paste the contained source image onto the target image at the specified position
+    targetImage.composite(sourceImage, startX, startY);
+
+    const base64Image = await targetImage.getBase64Async(Jimp.MIME_PNG);
     // Save the image to a file
     await targetImage.writeAsync("output.png");
 
