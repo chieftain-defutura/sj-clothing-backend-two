@@ -76,7 +76,7 @@ app.post("/canvas", async (req, res) => {
 
     const base64Image = await targetImage.getBase64Async(Jimp.MIME_PNG);
     // Save the image to a file
-    await targetImage.writeAsync("output.png");
+    // await targetImage.writeAsync("output.png");
 
     res.json({ base64Image });
   } catch (error) {
