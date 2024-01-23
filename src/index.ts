@@ -86,27 +86,17 @@ app.post("/canvas", async (req, res) => {
 });
 
 app.post("/captureWebsite", async (req, res) => {
-  const uid = "e0df0955-15fd-4e1a-9b48-05fbe529c6bf";
+  const uid = req.body.uid;
   try {
-    console.log("1");
-    const browser = await puppeteer.launch({
-      ignoreHTTPSErrors: true,
-      headless: "new",
-      executablePath:
-        process.env.NODE_ENV === "production"
-          ? process.env.PUPPETEER_EXECUTABLE_PATH
-          : puppeteer.executablePath(),
-    });
-    console.log("2");
+    const browser = await puppeteer.launch();
     const page = await browser.newPage();
-    console.log("3");
-    // console.log("  puppeteer.executablePath()", puppeteer.executablePath());
     await page.goto(
       `https://sj-threejs-development.netlify.app/webview/?uid=${uid}`
     );
     await page.setViewport({ width: 1920, height: 1080, deviceScaleFactor: 1 });
 
     await new Promise((resolve) => setTimeout(resolve, 10000));
+    await page.screenshot({ path: "./screenshot.png" });
     const screenshotBase64 = await page.screenshot({ encoding: "base64" });
     await browser.close();
     res.send({ screenshotBase64 });
