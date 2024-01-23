@@ -90,12 +90,17 @@ app.post("/captureWebsite", async (req, res) => {
   try {
     console.log("1");
     const browser = await puppeteer.launch({
-      headless: true,
       ignoreHTTPSErrors: true,
+      headless: "new",
+      executablePath:
+        process.env.NODE_ENV === "production"
+          ? process.env.PUPPETEER_EXECUTABLE_PATH
+          : puppeteer.executablePath(),
     });
     console.log("2");
     const page = await browser.newPage();
     console.log("3");
+    // console.log("  puppeteer.executablePath()", puppeteer.executablePath());
     await page.goto(
       `https://sj-threejs-development.netlify.app/webview/?uid=${uid}`
     );
