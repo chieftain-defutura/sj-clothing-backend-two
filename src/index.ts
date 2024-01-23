@@ -88,8 +88,11 @@ app.post("/canvas", async (req, res) => {
 app.post("/captureWebsite", async (req, res) => {
   const uid = "e0df0955-15fd-4e1a-9b48-05fbe529c6bf";
   try {
-    const browser = await puppeteer.launch({ headless: "new" });
+    console.log("1");
+    const browser = await puppeteer.launch({ headless: true });
+    console.log("2");
     const page = await browser.newPage();
+    console.log("3");
     await page.goto(
       `https://sj-threejs-development.netlify.app/webview/?uid=${uid}`
     );
