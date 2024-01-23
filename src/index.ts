@@ -96,7 +96,6 @@ app.post("/captureWebsite", async (req, res) => {
     await page.setViewport({ width: 1920, height: 1080, deviceScaleFactor: 1 });
 
     await new Promise((resolve) => setTimeout(resolve, 10000));
-    await page.screenshot({ path: "./screenshot.png" });
     const screenshotBase64 = await page.screenshot({ encoding: "base64" });
     await browser.close();
     res.send({ screenshotBase64 });
