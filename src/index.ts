@@ -1,9 +1,9 @@
 import cors from "cors";
 import express from "express";
 import dotenv from "dotenv";
-import puppeteer from "puppeteer";
 import Jimp from "jimp";
 import bodyParser from "body-parser";
+import { Builder, By, Key, until } from "selenium-webdriver";
 dotenv.config();
 
 const app = express();
@@ -85,25 +85,52 @@ app.post("/canvas", async (req, res) => {
   }
 });
 
+// app.post("/captureWebsite", async (req, res) => {
+//   const uid = req.body.uid;
+//   try {
+//     const browser = await puppeteer.launch();
+//     const page = await browser.newPage();
+//     await page.goto(
+//       `https://sj-threejs-development.netlify.app/webview/?uid=${uid}`
+//     );
+//     await page.setViewport({ width: 1920, height: 1080, deviceScaleFactor: 1 });
+
+//     await new Promise((resolve) => setTimeout(resolve, 10000));
+//     // await page.screenshot({ path: "./screenshot.png" });
+//     const screenshotBase64 = await page.screenshot({ encoding: "base64" });
+//     await browser.close();
+//     res.send({ screenshotBase64 });
+//   } catch (error) {
+//     console.log(error);
+//   }
+// });
+
 app.post("/captureWebsite", async (req, res) => {
   const uid = req.body.uid;
-  try {
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
-    await page.goto(
-      `https://sj-threejs-development.netlify.app/webview/?uid=${uid}`
-    );
-    await page.setViewport({ width: 1920, height: 1080, deviceScaleFactor: 1 });
 
+  try {
+    const url = `https://sj-threejs-development.netlify.app/webview/?uid=${uid}`;
+
+    // Create a new WebDriver instance
+    const driver = await new Builder().forBrowser("chrome").build();
+
+    // Navigate to the specified URL
+    await driver.get(url);
     await new Promise((resolve) => setTimeout(resolve, 10000));
-    // await page.screenshot({ path: "./screenshot.png" });
-    const screenshotBase64 = await page.screenshot({ encoding: "base64" });
-    await browser.close();
+    // Capture a screenshot
+    const screenshot = await driver.takeScreenshot();
+    const screenshotBase64 = screenshot;
+    // Close the WebDriver session
+    await driver.quit();
+
+    // Send the screenshot as a response (base64-encoded)
     res.send({ screenshotBase64 });
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    res.status(500).send("Internal Server Error");
   }
 });
+
 app.listen(PORT, () => {
   console.log(`server running on PORT ${PORT}`);
 });
