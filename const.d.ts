@@ -1,1 +1,1 @@
-declare module "selenium-webdriver";
+declare module "node-webshot";

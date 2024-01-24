@@ -3,7 +3,8 @@ import express from "express";
 import dotenv from "dotenv";
 import Jimp from "jimp";
 import bodyParser from "body-parser";
-import { Builder, By, Key, until } from "selenium-webdriver";
+import { chromium } from "playwright";
+import fs from "fs";
 dotenv.config();
 
 const app = express();
@@ -110,20 +111,27 @@ app.post("/captureWebsite", async (req, res) => {
 
   try {
     const url = `https://sj-threejs-development.netlify.app/webview/?uid=${uid}`;
+    const screenshotOptions = {
+      path: "screenshot.png", // Output file name
+      fullPage: true, // Capture the full page
+    };
 
-    // Create a new WebDriver instance
-    const driver = await new Builder().forBrowser("chrome").build();
+    const browser = await chromium.launch();
+    const context = await browser.newContext();
+    const page = await context.newPage();
 
     // Navigate to the specified URL
-    await driver.get(url);
-    await new Promise((resolve) => setTimeout(resolve, 10000));
-    // Capture a screenshot
-    const screenshot = await driver.takeScreenshot();
-    const screenshotBase64 = screenshot;
-    // Close the WebDriver session
-    await driver.quit();
+    await page.goto(url);
 
-    // Send the screenshot as a response (base64-encoded)
+    // Capture the screenshot
+    await new Promise((resolve) => setTimeout(resolve, 10000));
+    await page.screenshot(screenshotOptions);
+    const imageBuffer = fs.readFileSync(screenshotOptions.path);
+    const screenshotBase64 = imageBuffer.toString("base64");
+    console.log("Screenshot captured successfully");
+
+    // Close the browser
+    await browser.close();
     res.send({ screenshotBase64 });
   } catch (error) {
     console.error(error);
